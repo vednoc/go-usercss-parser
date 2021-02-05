@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"regexp"
 	"strings"
 )
 
 var (
+	url  = "https://raw.githubusercontent.com/vednoc/dark-github/main/github.user.styl"
 	temp = `/*==UserStyle==
 @name         Name
 @namespace    namespace
@@ -24,6 +27,21 @@ var (
 	:root { --hello: 'world' }
 }`
 )
+
+func ParseFromURL(url string) {
+	req, err := http.Get(url)
+	if err != nil {
+		fmt.Println("Error fetching URL:", err)
+	}
+	defer req.Body.Close()
+
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		fmt.Println("Error reading body:", err)
+	}
+
+	Parse(string(body))
+}
 
 func Parse(data string) {
 	r := regexp.MustCompile(`@.*`)
@@ -59,4 +77,5 @@ func Parse(data string) {
 
 func main() {
 	Parse(temp)
+	ParseFromURL(url)
 }
