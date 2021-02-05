@@ -1,0 +1,4 @@
+#+TITLE: Go UserCSS parser
+
+Small package for parsing [[https://github.com/openstyles/usercss-meta][github.com/openstyles/usercss-meta]], mainly intended
+for use in [[https://github.com/vednoc/userstyles.world][github.com/vednoc/userstyles.world]] project.
