@@ -23,7 +23,7 @@ var (
 @preprocessor uso
 ==/UserStyle== */
 
-@-moz-document domain('example.com') {
+@-moz-document domain('example.com'), domain('example.org') {
 	:root { --hello: 'world' }
 }`
 )
@@ -39,7 +39,7 @@ type UserCSS struct {
 	SupportURL   string
 	UpdateURL    string
 	Preprocessor string
-	MozDocument  string
+	MozDocument  []string
 }
 
 func ParseFromURL(url string) *UserCSS {
@@ -94,7 +94,7 @@ func Parse(data string) *UserCSS {
 				uc.Preprocessor = tail
 			case "@-moz-document":
 				tail = strings.TrimRight(tail, " {")
-				uc.MozDocument = tail
+				uc.MozDocument = append(uc.MozDocument, tail)
 
 				// TODO: Add the default case.
 				// default:
@@ -107,6 +107,6 @@ func Parse(data string) *UserCSS {
 }
 
 func main() {
-	fmt.Printf("Parse temp data: %+v\n", Parse(temp))
-	fmt.Printf("Parse real data: %+v\n", ParseFromURL(url))
+	fmt.Printf("Parse temp data:\n%#+v\n", Parse(temp))
+	fmt.Printf("Parse real data:\n%#+v\n", ParseFromURL(url))
 }
