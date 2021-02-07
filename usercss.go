@@ -28,7 +28,21 @@ var (
 }`
 )
 
-func ParseFromURL(url string) {
+type UserCSS struct {
+	Name         string
+	Namespace    string
+	Description  string
+	Author       string
+	Version      string
+	License      string
+	HomepageURL  string
+	SupportURL   string
+	UpdateURL    string
+	Preprocessor string
+	MozDocument  string
+}
+
+func ParseFromURL(url string) *UserCSS {
 	req, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Error fetching URL:", err)
@@ -40,32 +54,47 @@ func ParseFromURL(url string) {
 		fmt.Println("Error reading body:", err)
 	}
 
-	Parse(string(body))
+	return Parse(string(body))
 }
 
-func Parse(data string) {
+func Parse(data string) *UserCSS {
 	r := regexp.MustCompile(`@.*`)
 	matches := r.FindAllStringSubmatch(data, -1)
 
-	// TODO: Store the data in a proper data structure.
+	uc := new(UserCSS)
+
 	for _, match := range matches {
 		for _, s := range match {
 			parts := strings.Split(s, " ")
+
+			// Metadata fields.
 			head := parts[0]
+			tail := strings.TrimSpace(strings.Join(parts[1:], " "))
 
 			switch head {
-			case "@name",
-				"@namespace",
-				"@description",
-				"@author",
-				"@version",
-				"@license",
-				"@homepageURL",
-				"@supportURL",
-				"@preprocessor",
-				"@-moz-document":
-				tail := strings.TrimSpace(strings.Join(parts[1:], " "))
-				fmt.Printf("%-20s %s\n", head, tail)
+			case "@name":
+				uc.Name = tail
+			case "@namespace":
+				uc.Namespace = tail
+			case "@description":
+				uc.Description = tail
+			case "@author":
+				uc.Author = tail
+			case "@version":
+				uc.Version = tail
+			case "@license":
+				uc.License = tail
+			case "@homepageURL":
+				uc.HomepageURL = tail
+			case "@supportURL":
+				uc.SupportURL = tail
+			case "@updateURL":
+				uc.UpdateURL = tail
+			case "@preprocessor":
+				uc.Preprocessor = tail
+			case "@-moz-document":
+				tail = strings.TrimRight(tail, " {")
+				uc.MozDocument = tail
 
 				// TODO: Add the default case.
 				// default:
@@ -73,9 +102,11 @@ func Parse(data string) {
 			}
 		}
 	}
+
+	return uc
 }
 
 func main() {
-	Parse(temp)
-	ParseFromURL(url)
+	fmt.Printf("Parse temp data: %+v\n", Parse(temp))
+	fmt.Printf("Parse real data: %+v\n", ParseFromURL(url))
 }
