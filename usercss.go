@@ -94,7 +94,11 @@ func ParseFromString(data string) *UserCSS {
 				uc.Preprocessor = tail
 			case "@-moz-document":
 				tail = strings.TrimRight(tail, " {")
-				uc.MozDocument = append(uc.MozDocument, tail)
+
+				domains := strings.Split(tail, ", ")
+				for _, domain := range domains {
+					uc.MozDocument = append(uc.MozDocument, domain)
+				}
 
 				// TODO: Add the default case.
 				// default:
@@ -107,6 +111,9 @@ func ParseFromString(data string) *UserCSS {
 }
 
 func main() {
-	fmt.Printf("Parse temp data:\n%#+v\n", ParseFromString(temp))
-	fmt.Printf("Parse real data:\n%#+v\n", ParseFromURL(url))
+	temp := ParseFromString(temp)
+	real := ParseFromURL(url)
+
+	fmt.Printf("Temp data:\n%#+v\n", temp)
+	fmt.Printf("Real data:\n%#+v\n", real)
 }
