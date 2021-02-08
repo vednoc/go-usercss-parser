@@ -54,10 +54,10 @@ func ParseFromURL(url string) *UserCSS {
 		fmt.Println("Error reading body:", err)
 	}
 
-	return Parse(string(body))
+	return ParseFromString(string(body))
 }
 
-func Parse(data string) *UserCSS {
+func ParseFromString(data string) *UserCSS {
 	r := regexp.MustCompile(`@.*`)
 	matches := r.FindAllStringSubmatch(data, -1)
 
@@ -107,6 +107,6 @@ func Parse(data string) *UserCSS {
 }
 
 func main() {
-	fmt.Printf("Parse temp data:\n%#+v\n", Parse(temp))
+	fmt.Printf("Parse temp data:\n%#+v\n", ParseFromString(temp))
 	fmt.Printf("Parse real data:\n%#+v\n", ParseFromURL(url))
 }
