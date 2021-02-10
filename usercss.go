@@ -10,6 +10,12 @@ import (
 )
 
 var (
+	// Errors.
+	ErrEmptyName      = errors.New("name cannot be empty")
+	ErrEmptyNamespace = errors.New("namespace cannot be empty")
+	ErrEmptyVersion   = errors.New("version cannot be empty")
+
+	// Test data.
 	url  = "https://raw.githubusercontent.com/vednoc/dark-github/main/github.user.styl"
 	temp = `/*==UserStyle==
 @name         Name
@@ -113,13 +119,13 @@ func ParseFromString(data string) *UserCSS {
 
 func BasicMetadataValidation(uc *UserCSS) (bool, error) {
 	if len(uc.Name) == 0 {
-		return false, errors.New("name cannot be empty")
+		return false, ErrEmptyName
 	}
 	if len(uc.Namespace) == 0 {
-		return false, errors.New("namespace cannot be empty")
+		return false, ErrEmptyNamespace
 	}
 	if len(uc.Version) == 0 {
-		return false, errors.New("version cannot be empty")
+		return false, ErrEmptyVersion
 	}
 
 	return true, nil
