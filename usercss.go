@@ -49,6 +49,13 @@ type UserCSS struct {
 	MozDocument  []string
 }
 
+type Error struct {
+	Name string
+	Code error
+}
+
+type Errors []Error
+
 func ParseFromURL(url string) *UserCSS {
 	req, err := http.Get(url)
 	if err != nil {
@@ -117,18 +124,27 @@ func ParseFromString(data string) *UserCSS {
 	return uc
 }
 
-func BasicMetadataValidation(uc *UserCSS) (bool, error) {
+func BasicMetadataValidation(uc *UserCSS) (bool, Errors) {
+	errors := Errors{}
+
 	if len(uc.Name) == 0 {
-		return false, ErrEmptyName
+		err := Error{Name: "domain", Code: ErrEmptyName}
+		errors = append(errors, err)
 	}
 	if len(uc.Namespace) == 0 {
-		return false, ErrEmptyNamespace
+		err := Error{Name: "namespace", Code: ErrEmptyNamespace}
+		errors = append(errors, err)
 	}
 	if len(uc.Version) == 0 {
-		return false, ErrEmptyVersion
+		err := Error{Name: "version", Code: ErrEmptyVersion}
+		errors = append(errors, err)
 	}
 
-	return true, nil
+	if len(errors) > 0 {
+		return false, errors
+	}
+
+	return true, errors
 }
 
 func main() {
@@ -138,9 +154,19 @@ func main() {
 	fmt.Printf("Temp data:\n%#+v\n", temp)
 	fmt.Printf("Real data:\n%#+v\n", real)
 
-	validateTemp, _ := BasicMetadataValidation(temp)
+	validateTemp, err := BasicMetadataValidation(temp)
 	fmt.Printf("Temp data validation: %v\n", validateTemp)
+	if validateTemp == false {
+		for name, code := range err {
+			fmt.Println("Error:", name, code)
+		}
+	}
 
-	validateReal, _ := BasicMetadataValidation(real)
+	validateReal, err := BasicMetadataValidation(real)
 	fmt.Printf("Real data validation: %v\n", validateReal)
+	if validateReal == false {
+		for name, code := range err {
+			fmt.Println("Error:", name, code)
+		}
+	}
 }
