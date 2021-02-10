@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -110,10 +111,30 @@ func ParseFromString(data string) *UserCSS {
 	return uc
 }
 
+func BasicMetadataValidation(uc *UserCSS) (bool, error) {
+	if len(uc.Name) == 0 {
+		return false, errors.New("name cannot be empty")
+	}
+	if len(uc.Namespace) == 0 {
+		return false, errors.New("namespace cannot be empty")
+	}
+	if len(uc.Version) == 0 {
+		return false, errors.New("version cannot be empty")
+	}
+
+	return true, nil
+}
+
 func main() {
 	temp := ParseFromString(temp)
 	real := ParseFromURL(url)
 
 	fmt.Printf("Temp data:\n%#+v\n", temp)
 	fmt.Printf("Real data:\n%#+v\n", real)
+
+	validateTemp, _ := BasicMetadataValidation(temp)
+	fmt.Printf("Temp data validation: %v\n", validateTemp)
+
+	validateReal, _ := BasicMetadataValidation(real)
+	fmt.Printf("Real data validation: %v\n", validateReal)
 }
