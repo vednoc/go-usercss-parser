@@ -30,7 +30,11 @@ var (
 @preprocessor uso
 ==/UserStyle== */
 
-@-moz-document domain('example.com'), domain('example.org') {
+@-moz-document url(https://example.com/test) {
+	:root {}
+}
+
+@-moz-document domain("example.com"), domain('example.org') {
 	:root { --hello: 'world' }
 }`
 )
@@ -46,7 +50,12 @@ type UserCSS struct {
 	SupportURL   string
 	UpdateURL    string
 	Preprocessor string
-	MozDocument  []string
+	MozDocument  []Domain
+}
+
+type Domain struct {
+	Key   string
+	Value string
 }
 
 type Error struct {
@@ -109,10 +118,7 @@ func ParseFromString(data string) *UserCSS {
 			case "@-moz-document":
 				tail = strings.TrimRight(tail, " {")
 
-				domains := strings.Split(tail, ", ")
-				for _, domain := range domains {
-					uc.MozDocument = append(uc.MozDocument, domain)
-				}
+				ParseDomains(tail, uc)
 
 				// TODO: Add the default case.
 				// default:
@@ -122,6 +128,28 @@ func ParseFromString(data string) *UserCSS {
 	}
 
 	return uc
+}
+
+func ParseDomains(data string, uc *UserCSS) {
+	parts := strings.Split(data, ",")
+
+	// Regex rules.
+	kr := regexp.MustCompile(`^\w+`)
+	vr := regexp.MustCompile(`\((.*)\)`)
+
+	for _, v := range parts {
+		trim := strings.TrimSpace(v)
+		key := kr.FindStringSubmatch(trim)[0]
+		val := vr.FindStringSubmatch(trim)[1]
+
+		// Trim quotes.
+		val = strings.Trim(val, "'\"")
+
+		uc.MozDocument = append(uc.MozDocument, Domain{
+			Key:   key,
+			Value: val,
+		})
+	}
 }
 
 func BasicMetadataValidation(uc *UserCSS) (bool, Errors) {
