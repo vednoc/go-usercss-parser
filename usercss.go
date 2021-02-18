@@ -167,7 +167,7 @@ func BasicMetadataValidation(uc *UserCSS) (bool, Errors) {
 		return false, errors
 	}
 
-	return true, errors
+	return true, nil
 }
 
 func main() {
