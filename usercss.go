@@ -117,12 +117,7 @@ func ParseFromString(data string) *UserCSS {
 				uc.Preprocessor = tail
 			case "@-moz-document":
 				tail = strings.TrimRight(tail, " {")
-
 				ParseDomains(tail, uc)
-
-				// TODO: Add the default case.
-				// default:
-				// 	fmt.Println("Not implemented yet!")
 			}
 		}
 	}
