@@ -1,6 +1,7 @@
 package usercss
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -45,6 +46,22 @@ var (
 @-moz-document domain("example.com"), domain('example.org') {
 	:root { --hello: 'world' }
 }`
+	domain = `/*==UserStyle==
+@name         Name
+@namespace    namespace
+@description  Description
+@author       Temp <temp@example.com> (https://temp.example.com)
+@homepageURL  https://temp.example.com/temp/
+@supportURL   https://temp.example.com/temp/issues
+@updateURL    https://temp.example.com/temp/raw/temp.user.styl
+@version      1.0.0
+@license      MIT
+@preprocessor uso
+==/UserStyle== */
+
+@-moz-document domain(example.com) {
+	:root {}
+}`
 )
 
 func TestValidationPass(t *testing.T) {
@@ -66,5 +83,42 @@ func TestValidationFail(t *testing.T) {
 	}
 	if fail != false {
 		t.Fatal("Expected validation to fail.")
+	}
+}
+
+func TestSingleDomain(t *testing.T) {
+	data := ParseFromString(domain)
+	pass := Domain{
+		Key:   "domain",
+		Value: "example.com",
+	}
+
+	if data.MozDocument[0] != pass {
+		t.Fatal("Domains don't match.")
+	}
+}
+
+func TestMultipleDomains(t *testing.T) {
+	data := ParseFromString(ucPass)
+	pass := []Domain{
+		{
+			Key:   "url",
+			Value: "https://example.com/test",
+		},
+		{
+			Key:   "domain",
+			Value: "example.com",
+		},
+		{
+			Key:   "domain",
+			Value: "example.org",
+		},
+	}
+
+	dataString := fmt.Sprintf("%#+v", data.MozDocument)
+	passString := fmt.Sprintf("%#+v", pass)
+
+	if dataString != passString {
+		t.Fatal("Domain slices don't match.")
 	}
 }
