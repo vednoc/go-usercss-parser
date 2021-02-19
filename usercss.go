@@ -10,33 +10,10 @@ import (
 )
 
 var (
-	// Errors.
+	// Validation errors.
 	ErrEmptyName      = errors.New("name cannot be empty")
 	ErrEmptyNamespace = errors.New("namespace cannot be empty")
 	ErrEmptyVersion   = errors.New("version cannot be empty")
-
-	// Test data.
-	url  = "https://raw.githubusercontent.com/vednoc/dark-github/main/github.user.styl"
-	temp = `/*==UserStyle==
-@name         Name
-@namespace    namespace
-@description  Description
-@author       Temp <temp@example.com> (https://temp.example.com)
-@homepageURL  https://temp.example.com/temp/
-@supportURL   https://temp.example.com/temp/issues
-@updateURL    https://temp.example.com/temp/raw/temp.user.styl
-@version      1.0.0
-@license      MIT
-@preprocessor uso
-==/UserStyle== */
-
-@-moz-document url(https://example.com/test) {
-	:root {}
-}
-
-@-moz-document domain("example.com"), domain('example.org') {
-	:root { --hello: 'world' }
-}`
 )
 
 type UserCSS struct {
@@ -168,28 +145,4 @@ func BasicMetadataValidation(uc *UserCSS) (bool, Errors) {
 	}
 
 	return true, nil
-}
-
-func main() {
-	temp := ParseFromString(temp)
-	real := ParseFromURL(url)
-
-	fmt.Printf("Temp data:\n%#+v\n", temp)
-	fmt.Printf("Real data:\n%#+v\n", real)
-
-	validateTemp, err := BasicMetadataValidation(temp)
-	fmt.Printf("Temp data validation: %v\n", validateTemp)
-	if validateTemp == false {
-		for name, code := range err {
-			fmt.Println("Error:", name, code)
-		}
-	}
-
-	validateReal, err := BasicMetadataValidation(real)
-	fmt.Printf("Real data validation: %v\n", validateReal)
-	if validateReal == false {
-		for name, code := range err {
-			fmt.Println("Error:", name, code)
-		}
-	}
 }
