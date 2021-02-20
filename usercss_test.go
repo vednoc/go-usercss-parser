@@ -122,3 +122,40 @@ func TestMultipleDomains(t *testing.T) {
 		t.Fatal("Domain slices don't match.")
 	}
 }
+
+func TestUserCSS(t *testing.T) {
+	data := ParseFromString(ucPass)
+	pass := &UserCSS{
+		Name:         "Name",
+		Namespace:    "namespace",
+		Description:  "Description",
+		Author:       "Temp <temp@example.com> (https://temp.example.com)",
+		Version:      "1.0.0",
+		License:      "MIT",
+		HomepageURL:  "https://temp.example.com/temp",
+		SupportURL:   "https://temp.example.com/temp/issues",
+		UpdateURL:    "https://temp.example.com/temp/raw/temp.user.styl",
+		Preprocessor: "uso",
+		MozDocument: []Domain{
+			{
+				Key:   "url",
+				Value: "https://example.com/test",
+			},
+			{
+				Key:   "domain",
+				Value: "example.com",
+			},
+			{
+				Key:   "domain",
+				Value: "example.org",
+			},
+		},
+	}
+
+	dataString := fmt.Sprintf("%#+v", data)
+	passString := fmt.Sprintf("%#+v", pass)
+
+	if dataString != passString {
+		t.Fatal("UserCSS structs don't match.")
+	}
+}
