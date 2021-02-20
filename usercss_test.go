@@ -11,7 +11,7 @@ var (
 @namespace    namespace
 @description  Description
 @author       Temp <temp@example.com> (https://temp.example.com)
-@homepageURL  https://temp.example.com/temp/
+@homepageURL  https://temp.example.com/temp
 @supportURL   https://temp.example.com/temp/issues
 @updateURL    https://temp.example.com/temp/raw/temp.user.styl
 @version      1.0.0
@@ -31,7 +31,7 @@ var (
 @namespace    namespace
 @description  Description
 @author       Temp <temp@example.com> (https://temp.example.com)
-@homepageURL  https://temp.example.com/temp/
+@homepageURL  https://temp.example.com/temp
 @supportURL   https://temp.example.com/temp/issues
 @updateURL    https://temp.example.com/temp/raw/temp.user.styl
 @version      1.0.0
@@ -51,7 +51,7 @@ var (
 @namespace    namespace
 @description  Description
 @author       Temp <temp@example.com> (https://temp.example.com)
-@homepageURL  https://temp.example.com/temp/
+@homepageURL  https://temp.example.com/temp
 @supportURL   https://temp.example.com/temp/issues
 @updateURL    https://temp.example.com/temp/raw/temp.user.styl
 @version      1.0.0
