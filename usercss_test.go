@@ -10,7 +10,7 @@ var (
 @name         Name
 @namespace    namespace
 @description  Description
-@author       Temp <temp@example.com> (https://temp.example.com)
+@author       Temp   <temp@example.com>		(https://temp.example.com)
 @homepageURL  https://temp.example.com/temp
 @supportURL   https://temp.example.com/temp/issues
 @updateURL    https://temp.example.com/temp/raw/temp.user.styl
@@ -86,6 +86,22 @@ func TestValidationFail(t *testing.T) {
 	}
 }
 
+func TestAuthor(t *testing.T) {
+	data := ParseFromString(ucPass)
+	pass := Author{
+		Name:    "Temp",
+		Email:   "temp@example.com",
+		Website: "https://temp.example.com",
+	}
+
+	dataString := fmt.Sprintf("%#+v", data.Author)
+	passString := fmt.Sprintf("%#+v", pass)
+
+	if dataString != passString {
+		t.Fatal("Parsed author doesn't match.")
+	}
+}
+
 func TestSingleDomain(t *testing.T) {
 	data := ParseFromString(domain)
 	pass := Domain{
@@ -129,13 +145,17 @@ func TestUserCSS(t *testing.T) {
 		Name:         "Name",
 		Namespace:    "namespace",
 		Description:  "Description",
-		Author:       "Temp <temp@example.com> (https://temp.example.com)",
 		Version:      "1.0.0",
 		License:      "MIT",
 		HomepageURL:  "https://temp.example.com/temp",
 		SupportURL:   "https://temp.example.com/temp/issues",
 		UpdateURL:    "https://temp.example.com/temp/raw/temp.user.styl",
 		Preprocessor: "uso",
+		Author: Author{
+			Name:    "Temp",
+			Email:   "temp@example.com",
+			Website: "https://temp.example.com",
+		},
 		MozDocument: []Domain{
 			{
 				Key:   "url",
