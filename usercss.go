@@ -125,10 +125,12 @@ func ParseAuthor(data string, uc *UserCSS) {
 		// This will return a slice of e-mails.
 		s := er.FindStringSubmatch(parts[1])
 
-		// We want the second one.
-		email := s[1]
+		if s != nil {
+			// We want the second one.
+			email := s[1]
 
-		a.Email = email
+			a.Email = email
+		}
 	}
 
 	if len(parts) >= 3 {
@@ -137,10 +139,12 @@ func ParseAuthor(data string, uc *UserCSS) {
 		// This will return a slice of URLs.
 		s := wr.FindStringSubmatch(parts[2])
 
-		// We want the second one.
-		ws := s[1]
+		if s != nil {
+			// We want the second one.
+			ws := s[1]
 
-		a.Website = ws
+			a.Website = ws
+		}
 	}
 
 	uc.Author = a
