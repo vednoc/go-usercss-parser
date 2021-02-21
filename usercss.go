@@ -20,14 +20,20 @@ type UserCSS struct {
 	Name         string
 	Namespace    string
 	Description  string
-	Author       string
 	Version      string
 	License      string
 	HomepageURL  string
 	SupportURL   string
 	UpdateURL    string
 	Preprocessor string
+	Author       Author
 	MozDocument  []Domain
+}
+
+type Author struct {
+	Name    string
+	Email   string
+	Website string
 }
 
 type Domain struct {
@@ -78,8 +84,6 @@ func ParseFromString(data string) *UserCSS {
 				uc.Namespace = tail
 			case "@description":
 				uc.Description = tail
-			case "@author":
-				uc.Author = tail
 			case "@version":
 				uc.Version = tail
 			case "@license":
@@ -92,6 +96,8 @@ func ParseFromString(data string) *UserCSS {
 				uc.UpdateURL = tail
 			case "@preprocessor":
 				uc.Preprocessor = tail
+			case "@author":
+				ParseAuthor(tail, uc)
 			case "@-moz-document":
 				tail = strings.TrimRight(tail, " {")
 				ParseDomains(tail, uc)
@@ -100,6 +106,44 @@ func ParseFromString(data string) *UserCSS {
 	}
 
 	return uc
+}
+
+func ParseAuthor(data string, uc *UserCSS) {
+	// Using strings.Fields will trim all whitespace.
+	parts := strings.Fields(data)
+	a := Author{}
+
+	// Check if name is set.
+	if len(parts) >= 1 {
+		a.Name = parts[0]
+	}
+
+	// Check if e-mail is set.
+	if len(parts) >= 2 {
+		er := regexp.MustCompile(`<(.*)>`)
+
+		// This will return a slice of e-mails.
+		s := er.FindStringSubmatch(parts[1])
+
+		// We want the second one.
+		email := s[1]
+
+		a.Email = email
+	}
+
+	if len(parts) >= 3 {
+		wr := regexp.MustCompile(`\((.*)\)`)
+
+		// This will return a slice of URLs.
+		s := wr.FindStringSubmatch(parts[2])
+
+		// We want the second one.
+		ws := s[1]
+
+		a.Website = ws
+	}
+
+	uc.Author = a
 }
 
 func ParseDomains(data string, uc *UserCSS) {
