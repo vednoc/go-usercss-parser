@@ -48,19 +48,21 @@ type Error struct {
 
 type Errors []Error
 
-func ParseFromURL(url string) *UserCSS {
+func ParseFromURL(url string) (*UserCSS, error) {
 	req, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Error fetching URL:", err)
+		return nil, err
 	}
 	defer req.Body.Close()
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		fmt.Println("Error reading body:", err)
+		return nil, err
 	}
 
-	return ParseFromString(string(body))
+	return ParseFromString(string(body)), nil
 }
 
 func ParseFromString(data string) *UserCSS {
