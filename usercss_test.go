@@ -180,6 +180,7 @@ func TestUserCSS(t *testing.T) {
 		SupportURL:   "https://temp.example.com/temp/issues",
 		UpdateURL:    "https://temp.example.com/temp/raw/temp.user.styl",
 		Preprocessor: "uso",
+		SourceCode:   fmt.Sprintf("%v", ucPass),
 		Author: Author{
 			Name:    "Temp",
 			Email:   "temp@example.com",

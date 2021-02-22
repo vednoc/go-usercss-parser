@@ -26,6 +26,7 @@ type UserCSS struct {
 	SupportURL   string
 	UpdateURL    string
 	Preprocessor string
+	SourceCode   string
 	Author       Author
 	MozDocument  []Domain
 }
@@ -69,7 +70,9 @@ func ParseFromString(data string) *UserCSS {
 	r := regexp.MustCompile(`@.*`)
 	matches := r.FindAllStringSubmatch(data, -1)
 
-	uc := new(UserCSS)
+	uc := &UserCSS{
+		SourceCode: data,
+	}
 
 	for _, match := range matches {
 		for _, s := range match {
