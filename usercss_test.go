@@ -139,6 +139,35 @@ func TestMultipleDomains(t *testing.T) {
 	}
 }
 
+func TestValidRemoteUserCSS(t *testing.T) {
+	URL := "https://raw.githubusercontent.com/vednoc/dark-github/main/github.user.styl"
+
+	// Test will fail if URL is invalid.
+	data, err := ParseFromURL(URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	valid, errs := BasicMetadataValidation(data)
+	if errs != nil {
+		t.Fatal(errs)
+	}
+
+	if valid != true {
+		t.Fatal("Failed validating valid remote UserCSS.")
+	}
+}
+
+func TestInvalidRemoteUserCSS(t *testing.T) {
+	URL := "https:///raw.githubusercontent.com/vednoc/dark-github/main/github.user.styl"
+
+	// Test will fail because protocol has three slashes instead of two.
+	_, err := ParseFromURL(URL)
+	if err == nil {
+		t.Fatalf("Error parsing from URL: %v", err)
+	}
+}
+
 func TestUserCSS(t *testing.T) {
 	data := ParseFromString(ucPass)
 	pass := &UserCSS{
