@@ -156,14 +156,15 @@ func ParseAuthor(data string, uc *UserCSS) {
 }
 
 func ParseDomains(data string, uc *UserCSS) {
-	parts := strings.Split(data, ",")
+	dr := regexp.MustCompile(`^(domain|url|url-prefix|regexp)\(.*\)\s*,?\s*`)
+	parts := strings.Split(dr.FindString(data), ", ")
 
 	// Regex rules.
 	kr := regexp.MustCompile(`^\w+`)
 	vr := regexp.MustCompile(`\((.*)\)`)
 
 	for _, v := range parts {
-		trim := strings.TrimSpace(v)
+		trim := strings.TrimSpace(string(v))
 		key := kr.FindStringSubmatch(trim)[0]
 		val := vr.FindStringSubmatch(trim)[1]
 
