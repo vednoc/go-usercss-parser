@@ -156,26 +156,40 @@ func ParseAuthor(data string, uc *UserCSS) {
 }
 
 func ParseDomains(data string, uc *UserCSS) {
-	dr := regexp.MustCompile(`^(domain|url|url-prefix|regexp)\(.*\)\s*,?\s*`)
-	parts := strings.Split(dr.FindString(data), ", ")
+	data = strings.ReplaceAll(data, "\t", " ")
+	dr := regexp.MustCompile(`(domain|url|url-prefix|regexp)\(.*\)\s*[,\{]?\s*`)
+	str := dr.FindString(data)
+	parts := strings.Fields(str)
 
 	// Regex rules.
 	kr := regexp.MustCompile(`^\w+`)
 	vr := regexp.MustCompile(`\((.*)\)`)
 
 	for _, v := range parts {
-		trim := strings.TrimSpace(string(v))
-		key := kr.FindStringSubmatch(trim)[0]
-		val := vr.FindStringSubmatch(trim)[1]
+		if documentKeyword(v) {
+			key := kr.FindStringSubmatch(v)[0]
+			val := vr.FindStringSubmatch(v)[1]
 
-		// Trim quotes.
-		val = strings.Trim(val, "'\"")
+			// Trim quotes.
+			val = strings.Trim(val, "'\"")
 
-		uc.MozDocument = append(uc.MozDocument, Domain{
-			Key:   key,
-			Value: val,
-		})
+			uc.MozDocument = append(uc.MozDocument, Domain{
+				Key:   key,
+				Value: val,
+			})
+		}
 	}
+}
+
+func documentKeyword(key string) bool {
+	keys := []string{"url", "url-prefix", "regexp", "domain"}
+	for _, v := range keys {
+		if strings.HasPrefix(key, v) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func BasicMetadataValidation(uc *UserCSS) (bool, Errors) {
