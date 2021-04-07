@@ -66,23 +66,17 @@ var (
 
 func TestValidationPass(t *testing.T) {
 	uc := ParseFromString(ucPass)
-	pass, err := BasicMetadataValidation(uc)
+	err := BasicMetadataValidation(uc)
 	if err != nil {
-		t.Fatal("Passed validation has err:", err)
-	}
-	if pass != true {
-		t.Fatal("Expected validation to pass.")
+		t.Fatal("Passed validation shouldn't return errors.")
 	}
 }
 
 func TestValidationFail(t *testing.T) {
 	uc := ParseFromString(ucFail)
-	fail, err := BasicMetadataValidation(uc)
+	err := BasicMetadataValidation(uc)
 	if err == nil {
-		t.Error(err)
-	}
-	if fail != false {
-		t.Fatal("Expected validation to fail.")
+		t.Fatal("Failed validation should return errors.")
 	}
 }
 
@@ -148,13 +142,9 @@ func TestValidRemoteUserCSS(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	valid, errs := BasicMetadataValidation(data)
+	errs := BasicMetadataValidation(data)
 	if errs != nil {
 		t.Fatal(errs)
-	}
-
-	if valid != true {
-		t.Fatal("Failed validating valid remote UserCSS.")
 	}
 }
 

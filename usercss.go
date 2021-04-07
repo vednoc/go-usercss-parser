@@ -192,7 +192,7 @@ func documentKeyword(key string) bool {
 	return false
 }
 
-func BasicMetadataValidation(uc *UserCSS) (bool, Errors) {
+func BasicMetadataValidation(uc *UserCSS) Errors {
 	errors := Errors{}
 
 	if len(uc.Name) == 0 {
@@ -209,8 +209,8 @@ func BasicMetadataValidation(uc *UserCSS) (bool, Errors) {
 	}
 
 	if len(errors) > 0 {
-		return false, errors
+		return errors
 	}
 
-	return true, nil
+	return nil
 }
