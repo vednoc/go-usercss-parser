@@ -11,9 +11,9 @@ import (
 
 var (
 	// Validation errors.
-	ErrEmptyName      = errors.New("name cannot be empty")
-	ErrEmptyNamespace = errors.New("namespace cannot be empty")
-	ErrEmptyVersion   = errors.New("version cannot be empty")
+	ErrEmptyName      = errors.New("@name field cannot be empty")
+	ErrEmptyNamespace = errors.New("@namespace field cannot be empty")
+	ErrEmptyVersion   = errors.New("@version field cannot be empty")
 )
 
 type UserCSS struct {
