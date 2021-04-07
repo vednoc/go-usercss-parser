@@ -199,3 +199,14 @@ func TestUserCSS(t *testing.T) {
 		t.Fatal("UserCSS structs don't match.")
 	}
 }
+
+func TestOverrideUpdateURL(t *testing.T) {
+	data := ParseFromString(ucPass)
+
+	url := "https://example.com/api/style/1.user.css"
+	data.OverrideUpdateURL(url)
+
+	if data.UpdateURL != url {
+		t.Fatal("Failed to override @updateURL field.")
+	}
+}

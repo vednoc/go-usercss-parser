@@ -214,3 +214,15 @@ func BasicMetadataValidation(uc *UserCSS) Errors {
 
 	return nil
 }
+
+func (uc *UserCSS) OverrideUpdateURL(url string) {
+	if uc.UpdateURL != "" {
+		uc.UpdateURL = url
+
+		// `m` flag will let ^ and $ match start/end of lines.
+		re := regexp.MustCompile(`(?m)^(@updateURL\s*)(.+)$`)
+
+		// `${1}` allows us to keep whitespace between capturing group and URL.
+		uc.SourceCode = re.ReplaceAllString(uc.SourceCode, "${1}"+url)
+	}
+}
