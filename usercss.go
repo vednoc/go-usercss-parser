@@ -2,7 +2,6 @@ package usercss
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -52,14 +51,12 @@ type Errors []Error
 func ParseFromURL(url string) (*UserCSS, error) {
 	req, err := http.Get(url)
 	if err != nil {
-		fmt.Println("Error fetching URL:", err)
 		return nil, err
 	}
 	defer req.Body.Close()
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		fmt.Println("Error reading body:", err)
 		return nil, err
 	}
 

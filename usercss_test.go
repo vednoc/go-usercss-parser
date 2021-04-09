@@ -2,7 +2,6 @@ package usercss
 
 import (
 	"fmt"
-	"log"
 	"testing"
 )
 
@@ -228,8 +227,6 @@ func TestMetadatawithTabs(t *testing.T) {
 
 	dataString := fmt.Sprintf("%#+v", data)
 	passString := fmt.Sprintf("%#+v", pass)
-	log.Println(dataString)
-	log.Println(passString)
 
 	if dataString != passString {
 		t.Fatal("UserCSS structs don't match.")
