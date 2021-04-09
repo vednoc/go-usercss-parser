@@ -2,6 +2,7 @@ package usercss
 
 import (
 	"fmt"
+	"log"
 	"testing"
 )
 
@@ -62,6 +63,11 @@ var (
 @-moz-document regexp(^https?://(.+\.userstyles.world|localhost:[0-9]+)/[a-zA-Z0-9]{32,128}$) ,   domain(example.com) {
 	:root {}
 }`
+	tabs = `/*==UserStyle==
+@name		newstyle
+@namespace	somespace
+@version	1.0.1
+==/UserStyle== */`
 )
 
 func TestValidationPass(t *testing.T) {
@@ -208,5 +214,24 @@ func TestOverrideUpdateURL(t *testing.T) {
 
 	if data.UpdateURL != url {
 		t.Fatal("Failed to override @updateURL field.")
+	}
+}
+
+func TestMetadatawithTabs(t *testing.T) {
+	data := ParseFromString(tabs)
+	pass := &UserCSS{
+		Name:       "newstyle",
+		Namespace:  "somespace",
+		Version:    "1.0.1",
+		SourceCode: fmt.Sprintf("%v", tabs),
+	}
+
+	dataString := fmt.Sprintf("%#+v", data)
+	passString := fmt.Sprintf("%#+v", pass)
+	log.Println(dataString)
+	log.Println(passString)
+
+	if dataString != passString {
+		t.Fatal("UserCSS structs don't match.")
 	}
 }
