@@ -76,7 +76,7 @@ func ParseFromString(data string) *UserCSS {
 
 	for _, match := range matches {
 		for _, s := range match {
-			parts := strings.Split(s, " ")
+			parts := strings.Fields(s)
 
 			// Metadata fields.
 			head := parts[0]
