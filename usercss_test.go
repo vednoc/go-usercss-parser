@@ -216,7 +216,7 @@ func TestOverrideUpdateURL(t *testing.T) {
 	}
 }
 
-func TestMetadatawithTabs(t *testing.T) {
+func TestMetadataWithTabs(t *testing.T) {
 	data := ParseFromString(tabs)
 	pass := &UserCSS{
 		Name:       "newstyle",

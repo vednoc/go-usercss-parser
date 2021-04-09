@@ -193,7 +193,7 @@ func BasicMetadataValidation(uc *UserCSS) Errors {
 	errors := Errors{}
 
 	if len(uc.Name) == 0 {
-		err := Error{Name: "domain", Code: ErrEmptyName}
+		err := Error{Name: "name", Code: ErrEmptyName}
 		errors = append(errors, err)
 	}
 	if len(uc.Namespace) == 0 {
