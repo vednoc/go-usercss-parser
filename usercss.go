@@ -153,10 +153,8 @@ func ParseAuthor(data string, uc *UserCSS) {
 }
 
 func ParseDomains(data string, uc *UserCSS) {
-	data = strings.ReplaceAll(data, "\t", " ")
-	dr := regexp.MustCompile(`(domain|url|url-prefix|regexp)\(.*\)\s*[,\{]?\s*`)
-	str := dr.FindString(data)
-	parts := strings.Fields(str)
+	re := regexp.MustCompile(`(?mU)(domain|url|url-prefix|regexp)\(.*\)`)
+	parts := re.FindAllString(data, -1)
 
 	// Regex rules.
 	kr := regexp.MustCompile(`^\w+`)
