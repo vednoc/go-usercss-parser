@@ -59,7 +59,7 @@ var (
 @preprocessor uso
 ==/UserStyle== */
 
-@-moz-document domain("If you aren't on any of the instance's below, replace this with your instance URL"), regexp(^https?://(.+\.userstyles.world|localhost:[0-9]+)/[a-zA-Z0-9]{32,128}$) ,   domain(example.com) {
+@-moz-document domain("do as i say, not as i do"), regexp(^https?://(.+\.userstyles.world|localhost:[0-9]+)/[a-zA-Z0-9]{32,128}$) ,   domain(example.com)   , url-prefix("http://localhost")   {
 	:root {}
 }`
 	tabs = `/*==UserStyle==
@@ -105,7 +105,7 @@ func TestSingleDomain(t *testing.T) {
 	data := ParseFromString(domain)
 	pass := Domain{
 		Key:   "domain",
-		Value: `If you aren't on any of the instance's below, replace this with your instance URL`,
+		Value: `do as i say, not as i do`,
 	}
 
 	if data.MozDocument[0] != pass {
