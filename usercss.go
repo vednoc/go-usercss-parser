@@ -87,9 +87,7 @@ func ParseFromString(data string) *UserCSS {
 				uc.HintErrors = append(uc.HintErrors, Error{Name: "unknown", Code: ErrEmptyHead})
 				head = "unknown"
 			}
-			if tail == "" {
-				uc.HintErrors = append(uc.HintErrors, Error{Name: head, Code: ErrEmptyField})
-			}
+			knownValue := true
 
 			switch head {
 			case "@name":
@@ -146,6 +144,16 @@ func ParseFromString(data string) *UserCSS {
 			case "@-moz-document":
 				tail = strings.TrimRight(tail, " {")
 				ParseDomains(tail, uc)
+			// All unkown values will be executing this code
+			default:
+				knownValue = false
+			}
+
+			// If we handle this value only then check if tail is empty.
+			if knownValue {
+				if tail == "" {
+					uc.HintErrors = append(uc.HintErrors, Error{Name: head, Code: ErrEmptyField})
+				}
 			}
 		}
 	}
