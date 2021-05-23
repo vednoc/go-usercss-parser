@@ -80,6 +80,12 @@ var (
 @namespace  somespace
 @version    1.0.1
 ==/UserStyle== */`
+	emptyIdentifier = `/*==UserStyle==
+@name       newstyle
+@	Me
+@namespace  somespace
+@version    1.0.1
+==/UserStyle== */`
 )
 
 func TestValidationPass(t *testing.T) {
@@ -279,6 +285,15 @@ func TestEmptyField(t *testing.T) {
 
 	uc := ParseFromString(emptyField)
 	if err := BasicMetadataValidation(uc); len(err) != 1 || !errors.Is(err[0].Code, ErrEmptyField) || err[0].Name != "@author" {
+		t.Fatal("Multiple occurence validation should return error")
+	}
+}
+
+func TestEmptyIdentifier(t *testing.T) {
+	t.Parallel()
+
+	uc := ParseFromString(emptyIdentifier)
+	if err := BasicMetadataValidation(uc); len(err) != 1 || !errors.Is(err[0].Code, ErrEmptyHead) {
 		t.Fatal("Multiple occurence validation should return error")
 	}
 }
