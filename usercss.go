@@ -10,9 +10,10 @@ import (
 
 var (
 	// Validation errors.
-	ErrEmptyName      = errors.New("@name field cannot be empty")
-	ErrEmptyNamespace = errors.New("@namespace field cannot be empty")
-	ErrEmptyVersion   = errors.New("@version field cannot be empty")
+	ErrEmptyName         = errors.New("@name field cannot be empty")
+	ErrEmptyNamespace    = errors.New("@namespace field cannot be empty")
+	ErrEmptyVersion      = errors.New("@version field cannot be empty")
+	ErrMultipleOccurence = errors.New("duplicate occurence has been found in metadata")
 )
 
 type UserCSS struct {
@@ -28,6 +29,7 @@ type UserCSS struct {
 	SourceCode   string
 	Author       Author
 	MozDocument  []Domain
+	HintErrors   Errors
 }
 
 type Author struct {
@@ -81,25 +83,56 @@ func ParseFromString(data string) *UserCSS {
 
 			switch head {
 			case "@name":
+				if uc.Name != "" {
+					uc.HintErrors = append(uc.HintErrors, Error{Name: "name", Code: ErrMultipleOccurence})
+				}
 				uc.Name = tail
 			case "@namespace":
+				if uc.Namespace != "" {
+					uc.HintErrors = append(uc.HintErrors, Error{Name: "namespace", Code: ErrMultipleOccurence})
+				}
 				uc.Namespace = tail
 			case "@description":
+				if uc.Description != "" {
+					uc.HintErrors = append(uc.HintErrors, Error{Name: "description", Code: ErrMultipleOccurence})
+				}
 				uc.Description = tail
 			case "@version":
+				if uc.Version != "" {
+					uc.HintErrors = append(uc.HintErrors, Error{Name: "version", Code: ErrMultipleOccurence})
+				}
 				uc.Version = tail
 			case "@license":
+				if uc.License != "" {
+					uc.HintErrors = append(uc.HintErrors, Error{Name: "license", Code: ErrMultipleOccurence})
+				}
 				uc.License = tail
 			case "@homepageURL":
+				if uc.HomepageURL != "" {
+					uc.HintErrors = append(uc.HintErrors, Error{Name: "license", Code: ErrMultipleOccurence})
+				}
 				uc.HomepageURL = tail
 			case "@supportURL":
+				if uc.SupportURL != "" {
+					uc.HintErrors = append(uc.HintErrors, Error{Name: "license", Code: ErrMultipleOccurence})
+				}
 				uc.SupportURL = tail
 			case "@updateURL":
+				if uc.UpdateURL != "" {
+					uc.HintErrors = append(uc.HintErrors, Error{Name: "license", Code: ErrMultipleOccurence})
+				}
 				uc.UpdateURL = tail
 			case "@preprocessor":
+				if uc.Preprocessor != "" {
+					uc.HintErrors = append(uc.HintErrors, Error{Name: "license", Code: ErrMultipleOccurence})
+				}
 				uc.Preprocessor = tail
 			case "@author":
+				if uc.Author.Name != "" {
+					uc.HintErrors = append(uc.HintErrors, Error{Name: "license", Code: ErrMultipleOccurence})
+				}
 				ParseAuthor(tail, uc)
+			// Multiple @-moz-document is allowed and supported.
 			case "@-moz-document":
 				tail = strings.TrimRight(tail, " {")
 				ParseDomains(tail, uc)
@@ -190,6 +223,9 @@ func documentKeyword(key string) bool {
 func BasicMetadataValidation(uc *UserCSS) Errors {
 	errors := Errors{}
 
+	if len(uc.HintErrors) != 0 {
+		errors = append(errors, uc.HintErrors...)
+	}
 	if len(uc.Name) == 0 {
 		err := Error{Name: "name", Code: ErrEmptyName}
 		errors = append(errors, err)

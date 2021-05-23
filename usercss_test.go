@@ -67,9 +67,17 @@ var (
 @namespace	somespace
 @version	1.0.1
 ==/UserStyle== */`
+	multipleOccurence = `/*==UserStyle==
+@name       newstyle
+@name       Awesome stlye!
+@namespace  somespace
+@version    1.0.1
+==/UserStyle== */`
 )
 
 func TestValidationPass(t *testing.T) {
+	t.Parallel()
+
 	uc := ParseFromString(ucPass)
 	err := BasicMetadataValidation(uc)
 	if err != nil {
@@ -78,6 +86,8 @@ func TestValidationPass(t *testing.T) {
 }
 
 func TestValidationFail(t *testing.T) {
+	t.Parallel()
+
 	uc := ParseFromString(ucFail)
 	err := BasicMetadataValidation(uc)
 	if err == nil {
@@ -86,6 +96,8 @@ func TestValidationFail(t *testing.T) {
 }
 
 func TestAuthor(t *testing.T) {
+	t.Parallel()
+
 	data := ParseFromString(ucPass)
 	pass := Author{
 		Name:    "Temp",
@@ -102,6 +114,8 @@ func TestAuthor(t *testing.T) {
 }
 
 func TestSingleDomain(t *testing.T) {
+	t.Parallel()
+
 	data := ParseFromString(domain)
 	pass := Domain{
 		Key:   "domain",
@@ -114,6 +128,8 @@ func TestSingleDomain(t *testing.T) {
 }
 
 func TestMultipleDomains(t *testing.T) {
+	t.Parallel()
+
 	data := ParseFromString(ucPass)
 	pass := []Domain{
 		{
@@ -139,6 +155,8 @@ func TestMultipleDomains(t *testing.T) {
 }
 
 func TestValidRemoteUserCSS(t *testing.T) {
+	t.Parallel()
+
 	URL := "https://raw.githubusercontent.com/vednoc/dark-github/main/github.user.styl"
 
 	// Test will fail if URL is invalid.
@@ -154,16 +172,19 @@ func TestValidRemoteUserCSS(t *testing.T) {
 }
 
 func TestInvalidRemoteUserCSS(t *testing.T) {
+	t.Parallel()
+
 	URL := "https:///raw.githubusercontent.com/vednoc/dark-github/main/github.user.styl"
 
 	// Test will fail because protocol has three slashes instead of two.
-	_, err := ParseFromURL(URL)
-	if err == nil {
+	if _, err := ParseFromURL(URL); err == nil {
 		t.Fatalf("Error parsing from URL: %v", err)
 	}
 }
 
 func TestUserCSS(t *testing.T) {
+	t.Parallel()
+
 	data := ParseFromString(ucPass)
 	pass := &UserCSS{
 		Name:         "Name",
@@ -206,6 +227,8 @@ func TestUserCSS(t *testing.T) {
 }
 
 func TestOverrideUpdateURL(t *testing.T) {
+	t.Parallel()
+
 	data := ParseFromString(ucPass)
 
 	url := "https://example.com/api/style/1.user.css"
@@ -217,6 +240,8 @@ func TestOverrideUpdateURL(t *testing.T) {
 }
 
 func TestMetadataWithTabs(t *testing.T) {
+	t.Parallel()
+
 	data := ParseFromString(tabs)
 	pass := &UserCSS{
 		Name:       "newstyle",
@@ -230,5 +255,14 @@ func TestMetadataWithTabs(t *testing.T) {
 
 	if dataString != passString {
 		t.Fatal("UserCSS structs don't match.")
+	}
+}
+
+func TestMultipleOccurenceMetadata(t *testing.T) {
+	t.Parallel()
+
+	uc := ParseFromString(multipleOccurence)
+	if err := BasicMetadataValidation(uc); len(err) != 1 || err[0].Name != "name" {
+		t.Fatal("Multiple occurence validation should return error")
 	}
 }
