@@ -1,3 +1,3 @@
 module github.com/vednoc/go-usercss-parser
 
-go 1.15
+go 1.16
