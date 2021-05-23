@@ -14,6 +14,7 @@ var (
 	ErrEmptyNamespace    = errors.New("@namespace field cannot be empty")
 	ErrEmptyVersion      = errors.New("@version field cannot be empty")
 	ErrMultipleOccurence = errors.New("duplicate occurence has been found in metadata")
+	ErrEmptyField        = errors.New("metadata field is empty")
 )
 
 type UserCSS struct {
@@ -80,6 +81,10 @@ func ParseFromString(data string) *UserCSS {
 			// Metadata fields.
 			head := parts[0]
 			tail := strings.TrimSpace(strings.Join(parts[1:], " "))
+
+			if tail == "" {
+				uc.HintErrors = append(uc.HintErrors, Error{Name: head, Code: ErrEmptyField})
+			}
 
 			switch head {
 			case "@name":

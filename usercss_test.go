@@ -1,6 +1,7 @@
 package usercss
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 )
@@ -70,6 +71,12 @@ var (
 	multipleOccurence = `/*==UserStyle==
 @name       newstyle
 @name       Awesome stlye!
+@namespace  somespace
+@version    1.0.1
+==/UserStyle== */`
+	emptyField = `/*==UserStyle==
+@name       newstyle
+@author
 @namespace  somespace
 @version    1.0.1
 ==/UserStyle== */`
@@ -262,7 +269,16 @@ func TestMultipleOccurenceMetadata(t *testing.T) {
 	t.Parallel()
 
 	uc := ParseFromString(multipleOccurence)
-	if err := BasicMetadataValidation(uc); len(err) != 1 || err[0].Name != "name" {
+	if err := BasicMetadataValidation(uc); len(err) != 1 || !errors.Is(err[0].Code, ErrMultipleOccurence) || err[0].Name != "name" {
+		t.Fatal("Multiple occurence validation should return error")
+	}
+}
+
+func TestEmptyField(t *testing.T) {
+	t.Parallel()
+
+	uc := ParseFromString(emptyField)
+	if err := BasicMetadataValidation(uc); len(err) != 1 || !errors.Is(err[0].Code, ErrEmptyField) || err[0].Name != "@author" {
 		t.Fatal("Multiple occurence validation should return error")
 	}
 }
