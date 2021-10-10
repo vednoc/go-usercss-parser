@@ -13,6 +13,22 @@ var (
 	ErrEmptyName      = errors.New("@name field cannot be empty")
 	ErrEmptyNamespace = errors.New("@namespace field cannot be empty")
 	ErrEmptyVersion   = errors.New("@version field cannot be empty")
+
+	// Parse metadata.
+	metaRe = regexp.MustCompile(`@.*`)
+
+	// ParseAuthor regex.
+	mailRe = regexp.MustCompile(`<(.*)>`)
+	siteRe = regexp.MustCompile(`\((.*)\)`)
+
+	// ParseDomains regex.
+	areaRe    = regexp.MustCompile(`(?mU)(domain|url|url-prefix|regexp)\(.*\)`)
+	areaKeyRe = regexp.MustCompile(`^\w+`)
+	areaValRe = regexp.MustCompile(`\((.*)\)`)
+
+	// OverrideUpdateURL regex.
+	// `m` flag lets ^ and $ match beginning and end of multi-line matches.
+	updateRe = regexp.MustCompile(`(?m)^(@updateURL\s*)(.+)$`)
 )
 
 type UserCSS struct {
@@ -64,12 +80,10 @@ func ParseFromURL(url string) (*UserCSS, error) {
 }
 
 func ParseFromString(data string) *UserCSS {
-	r := regexp.MustCompile(`@.*`)
-	matches := r.FindAllStringSubmatch(data, -1)
+	matches := metaRe.FindAllStringSubmatch(data, -1)
 
-	uc := &UserCSS{
-		SourceCode: data,
-	}
+	uc := new(UserCSS)
+	uc.SourceCode = data
 
 	for _, match := range matches {
 		for _, s := range match {
@@ -122,10 +136,8 @@ func ParseAuthor(data string, uc *UserCSS) {
 
 	// Check if e-mail is set.
 	if len(parts) >= 2 {
-		er := regexp.MustCompile(`<(.*)>`)
-
 		// This will return a slice of e-mails.
-		s := er.FindStringSubmatch(parts[1])
+		s := mailRe.FindStringSubmatch(parts[1])
 
 		if s != nil {
 			// We want the second one.
@@ -136,10 +148,8 @@ func ParseAuthor(data string, uc *UserCSS) {
 	}
 
 	if len(parts) >= 3 {
-		wr := regexp.MustCompile(`\((.*)\)`)
-
 		// This will return a slice of URLs.
-		s := wr.FindStringSubmatch(parts[2])
+		s := siteRe.FindStringSubmatch(parts[2])
 
 		if s != nil {
 			// We want the second one.
@@ -153,17 +163,12 @@ func ParseAuthor(data string, uc *UserCSS) {
 }
 
 func ParseDomains(data string, uc *UserCSS) {
-	re := regexp.MustCompile(`(?mU)(domain|url|url-prefix|regexp)\(.*\)`)
-	parts := re.FindAllString(data, -1)
-
-	// Regex rules.
-	kr := regexp.MustCompile(`^\w+`)
-	vr := regexp.MustCompile(`\((.*)\)`)
+	parts := areaRe.FindAllString(data, -1)
 
 	for _, v := range parts {
 		if documentKeyword(v) {
-			key := kr.FindStringSubmatch(v)[0]
-			val := vr.FindStringSubmatch(v)[1]
+			key := areaKeyRe.FindStringSubmatch(v)[0]
+			val := areaValRe.FindStringSubmatch(v)[1]
 
 			// Trim quotes.
 			val = strings.Trim(val, "'\"")
@@ -214,10 +219,7 @@ func (uc *UserCSS) OverrideUpdateURL(url string) {
 	if uc.UpdateURL != "" {
 		uc.UpdateURL = url
 
-		// `m` flag will let ^ and $ match start/end of lines.
-		re := regexp.MustCompile(`(?m)^(@updateURL\s*)(.+)$`)
-
-		// `${1}` allows us to keep whitespace between capturing group and URL.
-		uc.SourceCode = re.ReplaceAllString(uc.SourceCode, "${1}"+url)
+		// `${1}` will preserve whitespace between capturing group and URL.
+		uc.SourceCode = updateRe.ReplaceAllString(uc.SourceCode, "${1}"+url)
 	}
 }
