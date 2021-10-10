@@ -2,7 +2,7 @@ package usercss
 
 import (
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"strings"
@@ -55,7 +55,7 @@ func ParseFromURL(url string) (*UserCSS, error) {
 	}
 	defer req.Body.Close()
 
-	body, err := ioutil.ReadAll(req.Body)
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		return nil, err
 	}
