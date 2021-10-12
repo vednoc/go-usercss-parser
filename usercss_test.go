@@ -2,6 +2,7 @@ package usercss
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -93,16 +94,15 @@ func TestAuthor(t *testing.T) {
 	t.Parallel()
 
 	data := ParseFromString(ucPass)
-	pass := Author{
-		Name:    "Temp",
-		Email:   "temp@example.com",
-		Website: "https://temp.example.com",
+	pass := UserCSS{
+		Author: Author{
+			Name:    "Temp",
+			Email:   "temp@example.com",
+			Website: "https://temp.example.com",
+		},
 	}
 
-	dataString := fmt.Sprintf("%#+v", data.Author)
-	passString := fmt.Sprintf("%#+v", pass)
-
-	if dataString != passString {
+	if data.Author != pass.Author {
 		t.Fatal("Parsed author doesn't match.")
 	}
 }
@@ -111,12 +111,16 @@ func TestSingleDomain(t *testing.T) {
 	t.Parallel()
 
 	data := ParseFromString(domain)
-	pass := Domain{
-		Key:   "domain",
-		Value: `do as i say, not as i do`,
+	pass := UserCSS{
+		MozDocument: []Domain{
+			{
+				Key:   "domain",
+				Value: `do as i say, not as i do`,
+			},
+		},
 	}
 
-	if data.MozDocument[0] != pass {
+	if !reflect.DeepEqual(data.MozDocument[0], pass.MozDocument[0]) {
 		t.Fatal("Domains don't match.")
 	}
 }
@@ -125,26 +129,25 @@ func TestMultipleDomains(t *testing.T) {
 	t.Parallel()
 
 	data := ParseFromString(ucPass)
-	pass := []Domain{
-		{
-			Key:   "url",
-			Value: "https://example.com/test",
-		},
-		{
-			Key:   "domain",
-			Value: "example.com",
-		},
-		{
-			Key:   "domain",
-			Value: "example.org",
+	pass := UserCSS{
+		MozDocument: []Domain{
+			{
+				Key:   "url",
+				Value: "https://example.com/test",
+			},
+			{
+				Key:   "domain",
+				Value: "example.com",
+			},
+			{
+				Key:   "domain",
+				Value: "example.org",
+			},
 		},
 	}
 
-	dataString := fmt.Sprintf("%#+v", data.MozDocument)
-	passString := fmt.Sprintf("%#+v", pass)
-
-	if dataString != passString {
-		t.Fatal("Domain slices don't match.")
+	if !reflect.DeepEqual(data.MozDocument, pass.MozDocument) {
+		t.Fatal("Domains don't match.")
 	}
 }
 
@@ -212,10 +215,7 @@ func TestUserCSS(t *testing.T) {
 		},
 	}
 
-	dataString := fmt.Sprintf("%#+v", data)
-	passString := fmt.Sprintf("%#+v", pass)
-
-	if dataString != passString {
+	if !reflect.DeepEqual(data.MozDocument, pass.MozDocument) {
 		t.Fatal("UserCSS structs don't match.")
 	}
 }
@@ -244,10 +244,7 @@ func TestMetadataWithTabs(t *testing.T) {
 		SourceCode: fmt.Sprintf("%v", tabs),
 	}
 
-	dataString := fmt.Sprintf("%#+v", data)
-	passString := fmt.Sprintf("%#+v", pass)
-
-	if dataString != passString {
+	if !reflect.DeepEqual(data, pass) {
 		t.Fatal("UserCSS structs don't match.")
 	}
 }
