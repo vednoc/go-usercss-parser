@@ -73,28 +73,29 @@ var (
 func TestValidationPass(t *testing.T) {
 	t.Parallel()
 
-	uc := ParseFromString(ucPass)
-	err := BasicMetadataValidation(uc)
-	if err != nil {
-		t.Fatal("Passed validation shouldn't return errors.")
+	uc := new(UserCSS)
+	uc.Parse(ucPass)
+	if err := uc.Validate(); err != nil {
+		t.Fatal("Passing validation shouldn't return errors.")
 	}
 }
 
 func TestValidationFail(t *testing.T) {
 	t.Parallel()
 
-	uc := ParseFromString(ucFail)
-	err := BasicMetadataValidation(uc)
-	if err == nil {
-		t.Fatal("Failed validation should return errors.")
+	uc := new(UserCSS)
+	uc.Parse(ucFail)
+	if err := uc.Validate(); err == nil {
+		t.Fatal("Failing validation should return errors.")
 	}
 }
 
 func TestAuthor(t *testing.T) {
 	t.Parallel()
 
-	data := ParseFromString(ucPass)
-	pass := UserCSS{
+	have := new(UserCSS)
+	have.Parse(ucPass)
+	want := UserCSS{
 		Author: Author{
 			Name:    "Temp",
 			Email:   "temp@example.com",
@@ -102,7 +103,7 @@ func TestAuthor(t *testing.T) {
 		},
 	}
 
-	if data.Author != pass.Author {
+	if have.Author != want.Author {
 		t.Fatal("Parsed author doesn't match.")
 	}
 }
@@ -110,8 +111,9 @@ func TestAuthor(t *testing.T) {
 func TestSingleDomain(t *testing.T) {
 	t.Parallel()
 
-	data := ParseFromString(domain)
-	pass := UserCSS{
+	have := new(UserCSS)
+	have.Parse(domain)
+	want := UserCSS{
 		MozDocument: []Domain{
 			{
 				Key:   "domain",
@@ -120,7 +122,7 @@ func TestSingleDomain(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(data.MozDocument[0], pass.MozDocument[0]) {
+	if !reflect.DeepEqual(have.MozDocument[0], want.MozDocument[0]) {
 		t.Fatal("Domains don't match.")
 	}
 }
@@ -128,8 +130,9 @@ func TestSingleDomain(t *testing.T) {
 func TestMultipleDomains(t *testing.T) {
 	t.Parallel()
 
-	data := ParseFromString(ucPass)
-	pass := UserCSS{
+	have := new(UserCSS)
+	have.Parse(ucPass)
+	want := UserCSS{
 		MozDocument: []Domain{
 			{
 				Key:   "url",
@@ -146,7 +149,7 @@ func TestMultipleDomains(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(data.MozDocument, pass.MozDocument) {
+	if !reflect.DeepEqual(have.MozDocument, want.MozDocument) {
 		t.Fatal("Domains don't match.")
 	}
 }
@@ -157,13 +160,12 @@ func TestValidRemoteUserCSS(t *testing.T) {
 	URL := "https://raw.githubusercontent.com/vednoc/dark-github/main/github.user.styl"
 
 	// Test will fail if URL is invalid.
-	data, err := ParseFromURL(URL)
-	if err != nil {
+	uc := new(UserCSS)
+	if err := uc.ParseURL(URL); err != nil {
 		t.Fatal(err)
 	}
 
-	errs := BasicMetadataValidation(data)
-	if errs != nil {
+	if errs := uc.Validate(); errs != nil {
 		t.Fatal(errs)
 	}
 }
@@ -174,7 +176,8 @@ func TestInvalidRemoteUserCSS(t *testing.T) {
 	URL := "https:///raw.githubusercontent.com/vednoc/dark-github/main/github.user.styl"
 
 	// Test will fail because protocol has three slashes instead of two.
-	if _, err := ParseFromURL(URL); err == nil {
+	uc := new(UserCSS)
+	if err := uc.ParseURL(URL); err == nil {
 		t.Fatalf("Error parsing from URL: %v", err)
 	}
 }
@@ -182,8 +185,9 @@ func TestInvalidRemoteUserCSS(t *testing.T) {
 func TestUserCSS(t *testing.T) {
 	t.Parallel()
 
-	data := ParseFromString(ucPass)
-	pass := &UserCSS{
+	have := new(UserCSS)
+	have.Parse(ucPass)
+	want := &UserCSS{
 		Name:         "Name",
 		Namespace:    "namespace",
 		Description:  "Description",
@@ -215,7 +219,7 @@ func TestUserCSS(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(data.MozDocument, pass.MozDocument) {
+	if !reflect.DeepEqual(have.MozDocument, want.MozDocument) {
 		t.Fatal("UserCSS structs don't match.")
 	}
 }
@@ -223,12 +227,13 @@ func TestUserCSS(t *testing.T) {
 func TestOverrideUpdateURL(t *testing.T) {
 	t.Parallel()
 
-	data := ParseFromString(ucPass)
+	uc := new(UserCSS)
+	uc.Parse(ucPass)
 
 	url := "https://example.com/api/style/1.user.css"
-	data.OverrideUpdateURL(url)
+	uc.OverrideUpdateURL(url)
 
-	if data.UpdateURL != url {
+	if uc.UpdateURL != url {
 		t.Fatal("Failed to override @updateURL field.")
 	}
 }
@@ -236,15 +241,16 @@ func TestOverrideUpdateURL(t *testing.T) {
 func TestMetadataWithTabs(t *testing.T) {
 	t.Parallel()
 
-	data := ParseFromString(tabs)
-	pass := &UserCSS{
+	have := new(UserCSS)
+	have.Parse(tabs)
+	want := &UserCSS{
 		Name:       "newstyle",
 		Namespace:  "somespace",
 		Version:    "1.0.1",
 		SourceCode: fmt.Sprintf("%v", tabs),
 	}
 
-	if !reflect.DeepEqual(data, pass) {
+	if !reflect.DeepEqual(have, want) {
 		t.Fatal("UserCSS structs don't match.")
 	}
 }

@@ -8,12 +8,14 @@ import (
 	"strings"
 )
 
+// Error codes returned by validation failures.
 var (
-	// Validation errors.
 	ErrEmptyName      = errors.New("@name field cannot be empty")
 	ErrEmptyNamespace = errors.New("@namespace field cannot be empty")
 	ErrEmptyVersion   = errors.New("@version field cannot be empty")
+)
 
+var (
 	// Parse metadata.
 	metaRe = regexp.MustCompile(`@.*`)
 
@@ -64,26 +66,28 @@ type Error struct {
 
 type Errors []Error
 
-func ParseFromURL(url string) (*UserCSS, error) {
+func (uc *UserCSS) ParseURL(url string) error {
 	req, err := http.Get(url)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer req.Body.Close()
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return ParseFromString(string(body)), nil
+	uc.Parse(string(body))
+
+	return nil
 }
 
-func ParseFromString(data string) *UserCSS {
-	matches := metaRe.FindAllStringSubmatch(data, -1)
+func (uc *UserCSS) Parse(code string) {
+	matches := metaRe.FindAllStringSubmatch(code, -1)
 
-	uc := new(UserCSS)
-	uc.SourceCode = data
+	uc.SourceCode = code
+
 
 	for _, match := range matches {
 		for _, s := range match {
@@ -113,18 +117,16 @@ func ParseFromString(data string) *UserCSS {
 			case "@preprocessor":
 				uc.Preprocessor = tail
 			case "@author":
-				ParseAuthor(tail, uc)
+				uc.ParseAuthor(tail)
 			case "@-moz-document":
 				tail = strings.TrimRight(tail, " {")
-				ParseDomains(tail, uc)
+				uc.ParseDomains(tail)
 			}
 		}
 	}
-
-	return uc
 }
 
-func ParseAuthor(data string, uc *UserCSS) {
+func (uc *UserCSS) ParseAuthor(data string) {
 	// Using strings.Fields will trim all whitespace.
 	parts := strings.Fields(data)
 	a := Author{}
@@ -162,7 +164,7 @@ func ParseAuthor(data string, uc *UserCSS) {
 	uc.Author = a
 }
 
-func ParseDomains(data string, uc *UserCSS) {
+func (uc *UserCSS) ParseDomains(data string) {
 	parts := areaRe.FindAllString(data, -1)
 
 	for _, v := range parts {
@@ -192,34 +194,40 @@ func documentKeyword(key string) bool {
 	return false
 }
 
-func BasicMetadataValidation(uc *UserCSS) Errors {
-	errors := Errors{}
+func (uc *UserCSS) Validate() Errors {
+	var errors Errors
 
 	if len(uc.Name) == 0 {
-		err := Error{Name: "name", Code: ErrEmptyName}
-		errors = append(errors, err)
+		errors = append(errors, Error{
+			Name: "name",
+			Code: ErrEmptyName,
+		})
 	}
 	if len(uc.Namespace) == 0 {
-		err := Error{Name: "namespace", Code: ErrEmptyNamespace}
-		errors = append(errors, err)
+		errors = append(errors, Error{
+			Name: "namespace",
+			Code: ErrEmptyNamespace,
+		})
 	}
 	if len(uc.Version) == 0 {
-		err := Error{Name: "version", Code: ErrEmptyVersion}
-		errors = append(errors, err)
+		errors = append(errors, Error{
+			Name: "version",
+			Code: ErrEmptyVersion,
+		})
 	}
 
-	if len(errors) > 0 {
-		return errors
+	if len(errors) == 0 {
+		return nil
 	}
 
-	return nil
+	return errors
 }
 
 func (uc *UserCSS) OverrideUpdateURL(url string) {
 	if uc.UpdateURL != "" {
 		uc.UpdateURL = url
 
-		// `${1}` will preserve whitespace between capturing group and URL.
+		// `${1}` will preserve whitespace between capturing group and the URL.
 		uc.SourceCode = updateRe.ReplaceAllString(uc.SourceCode, "${1}"+url)
 	}
 }
