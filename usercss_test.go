@@ -74,7 +74,9 @@ func TestValidationPass(t *testing.T) {
 	t.Parallel()
 
 	uc := new(UserCSS)
-	uc.Parse(ucPass)
+	if err := uc.Parse(ucPass); err != nil {
+		t.Fatal(err)
+	}
 	if err := uc.Validate(); err != nil {
 		t.Fatal("Passing validation shouldn't return errors.")
 	}
@@ -84,7 +86,9 @@ func TestValidationFail(t *testing.T) {
 	t.Parallel()
 
 	uc := new(UserCSS)
-	uc.Parse(ucFail)
+	if err := uc.Parse(ucFail); err != nil {
+		t.Fatal(err)
+	}
 	if err := uc.Validate(); err == nil {
 		t.Fatal("Failing validation should return errors.")
 	}
@@ -224,11 +228,31 @@ func TestUserCSS(t *testing.T) {
 	}
 }
 
+func TestParseEmptyStyle(t *testing.T) {
+	t.Parallel()
+
+	uc := new(UserCSS)
+	if err := uc.Parse(""); err == nil {
+		t.Fatalf("Empty style should return an err, got: %v", err)
+	}
+}
+
+func TestParseEmptyMetadata(t *testing.T) {
+	t.Parallel()
+
+	uc := new(UserCSS)
+	if err := uc.Parse(ucPass); err != nil {
+		t.Fatalf("Empty metadata should return an err, got: %v", err)
+	}
+}
+
 func TestOverrideUpdateURL(t *testing.T) {
 	t.Parallel()
 
 	uc := new(UserCSS)
-	uc.Parse(ucPass)
+	if err := uc.Parse(ucPass); err != nil {
+		t.Fatal(err)
+	}
 
 	url := "https://example.com/api/style/1.user.css"
 	uc.OverrideUpdateURL(url)

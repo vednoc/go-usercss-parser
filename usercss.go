@@ -8,6 +8,12 @@ import (
 	"strings"
 )
 
+// Error codes returned by parser failures.
+var (
+	ErrEmptyUserstyle = errors.New("userstyle is missing code")
+	ErrEmptyMetadata  = errors.New("userstyle is missing metadata")
+)
+
 // Error codes returned by validation failures.
 var (
 	ErrEmptyName      = errors.New("@name field cannot be empty")
@@ -78,16 +84,19 @@ func (uc *UserCSS) ParseURL(url string) error {
 		return err
 	}
 
-	uc.Parse(string(body))
-
-	return nil
+	return uc.Parse(string(body))
 }
 
-func (uc *UserCSS) Parse(code string) {
-	matches := metaRe.FindAllStringSubmatch(code, -1)
-
+func (uc *UserCSS) Parse(code string) error {
 	uc.SourceCode = code
+	if len(uc.SourceCode) == 0 {
+		return ErrEmptyUserstyle
+	}
 
+	matches := metaRe.FindAllStringSubmatch(code, -1)
+	if len(matches) == 0 {
+		return ErrEmptyMetadata
+	}
 
 	for _, match := range matches {
 		for _, s := range match {
@@ -124,6 +133,8 @@ func (uc *UserCSS) Parse(code string) {
 			}
 		}
 	}
+
+	return nil
 }
 
 func (uc *UserCSS) ParseAuthor(data string) {
