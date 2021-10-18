@@ -68,6 +68,7 @@ var (
 @namespace	somespace
 @version	1.0.1
 ==/UserStyle== */`
+	updateURL = "https://example.com/api/style/1.user.css"
 )
 
 func TestValidationPass(t *testing.T) {
@@ -254,11 +255,26 @@ func TestOverrideUpdateURL(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	url := "https://example.com/api/style/1.user.css"
-	uc.OverrideUpdateURL(url)
+	uc.OverrideUpdateURL(updateURL)
 
-	if uc.UpdateURL != url {
+	if uc.UpdateURL != updateURL {
 		t.Fatal("Failed to override @updateURL field.")
+	}
+}
+
+func TestFastOverrideUpdateURL(t *testing.T) {
+	t.Parallel()
+
+	have := new(UserCSS)
+	code := OverrideUpdateURL(ucPass, updateURL)
+	if err := have.Parse(code); err != nil {
+		t.Fatal(err)
+	}
+
+	want := &UserCSS{UpdateURL: updateURL}
+
+	if !reflect.DeepEqual(have.UpdateURL, want.UpdateURL) {
+		t.Fatal("UpdateURL fields don't match.")
 	}
 }
 

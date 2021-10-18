@@ -242,3 +242,11 @@ func (uc *UserCSS) OverrideUpdateURL(url string) {
 		uc.SourceCode = updateRe.ReplaceAllString(uc.SourceCode, "${1}"+url)
 	}
 }
+
+func OverrideUpdateURL(code, url string) string {
+	if strings.Contains(code, "@updateURL") {
+		return updateRe.ReplaceAllString(code, "${1}"+url)
+	}
+
+	return code
+}
